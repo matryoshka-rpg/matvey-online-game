@@ -1,55 +1,19 @@
 Моя первая игра
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>Matvey Online Game</title>
-  <style>
-    body {
-      margin: 0;
-      background: #111;
-      color: white;
-      font-family: Arial;
-      overflow: hidden;
-    }
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-    #menu {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
+<script>
+const socket = io("URL_СЕРВЕРА");
 
-    button {
-      padding: 15px 30px;
-      font-size: 20px;
-      cursor: pointer;
-    }
+let players = {};
 
-    #game {
-      display: none;
-    }
+socket.on("players", (data) => {
+  players = data;
+});
 
-    canvas {
-      background: #222;
-      display: block;
-      margin: auto;
-    }
-  </style>
-</head>
-<body>
-
-<div id="menu">
-  <h1>🎮 Моя первая игра</h1>
-  <button onclick="startGame()">Играть</button>
-</div>
-
-<div id="game">
-  <canvas id="canvas" width="800" height="500"></canvas>
-</div>
+function sendMove(x, y) {
+  socket.emit("move", { x, y });
+}
+</script>
 
 <script>
 let canvas, ctx;
@@ -65,7 +29,6 @@ function startGame() {
   ctx = canvas.getContext("2d");
 
   document.addEventListener("keydown", move);
-
   gameLoop();
 }
 
@@ -74,23 +37,16 @@ function move(e) {
   if (e.key === "s") y += speed;
   if (e.key === "a") x -= speed;
   if (e.key === "d") x += speed;
+
+  sendMove(x, y); // 👈 ВАЖНО ДЛЯ ОНЛАЙНА
 }
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // игрок
   ctx.fillStyle = "red";
   ctx.fillRect(x, y, 30, 30);
 
   requestAnimationFrame(gameLoop);
 }
 </script>
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-<script>
-  // твой код
-</script>
-
-</body>
-</html>
